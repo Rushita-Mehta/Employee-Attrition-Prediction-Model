@@ -33,7 +33,8 @@ The **Employee Attrition Prediction and Insights Dashboard** is a Streamlit appl
      Open your command prompt or terminal, and navigate to the project directory.
       ```bash
       cd path\to\employee-attrition-dashboard
-      Replace path\to\employee-attrition-dashboard with the actual path where you cloned or extracted the project.
+
+Replace path\to\employee-attrition-dashboard with the actual path where you cloned or extracted the project.
 3. **Install Dependencies**
    Install the required Python packages using pip.
    ```bash
@@ -112,7 +113,7 @@ Data Visualization: Seaborn, Matplotlib
 Modeling Techniques: AdaBoost Classifier, Random Forest Classifier
 
 ### Contact
-Created by Rushita Mehta - feel free to contact me!
+Created by Rushita Mehta
 
 GitHub: Rushita-Mehta
 LinkedIn: Rushita Mehta

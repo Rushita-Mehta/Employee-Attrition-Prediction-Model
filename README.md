@@ -35,17 +35,21 @@ The **Employee Attrition Prediction and Insights Dashboard** is a Streamlit appl
       cd path\to\employee-attrition-dashboard
 
 Replace path\to\employee-attrition-dashboard with the actual path where you cloned or extracted the project.
+
 3. **Install Dependencies**
    Install the required Python packages using pip.
    ```bash
    pip install -r requirements.txt
+   
 4. **Download Pre-trained Models**
    Place the pre-trained model files (ada_model.pkl and rf_model.pkl) into the models/ directory of the project.
-5. **Run the Application**
+   
+6. **Run the Application**
    Start the Streamlit application using the following command:
    ```bash
    streamlit run app.py
-6. **Access the Dashboard**
+   
+7. **Access the Dashboard**
    After running the command, you will see output in the terminal similar to:
    You can now view your Streamlit app in your browser.
 

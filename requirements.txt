@@ -4,4 +4,6 @@ numpy==1.23.2
 scikit-learn==0.24.1
 seaborn==0.11.1
 matplotlib==3.3.4
-setuptools>=40.0.0
+setuptools>=65.5.0
+distlib>=0.3.6
+wheel>=0.38.4

@@ -7,3 +7,4 @@ matplotlib==3.3.4
 setuptools>=65.5.0
 distlib>=0.3.6
 wheel>=0.38.4
+distutils

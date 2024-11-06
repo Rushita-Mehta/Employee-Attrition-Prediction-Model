@@ -1,0 +1,212 @@
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap');
+
+/* Reset Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Body Styles */
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f5f7fa;
+    color: #333;
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 700;
+    color: #2c3e50; /* Dark blue color */
+    margin-bottom: 0.5em;
+    padding: 0.5em;
+    background-color: #e8eef5; /* Light background behind headings */
+    border-radius: 0.3em;
+}
+
+/* Specific font sizes for headings */
+h1 {
+    font-size: 2.5rem;
+}
+
+h2 {
+    font-size: 2rem;
+}
+
+h3 {
+    font-size: 1.75rem;
+}
+
+h4 {
+    font-size: 1.5rem;
+}
+
+h5 {
+    font-size: 1.25rem;
+}
+
+h6 {
+    font-size: 1rem;
+}
+
+/* Paragraphs */
+p {
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 1em;
+}
+
+/* Links */
+a {
+    color: #3498db;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Buttons */
+button, .btn {
+    background-color: #3498db;
+    color: #fff;
+    padding: 0.75em 1.5em;
+    border: none;
+    border-radius: 0.3em;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover, .btn:hover {
+    background-color: #2980b9;
+}
+
+/* Inputs */
+input, textarea, select {
+    font-family: inherit;
+    font-size: 1rem;
+    padding: 0.75em;
+    border: 1px solid #ccc;
+    border-radius: 0.3em;
+    width: 100%;
+    margin-bottom: 1em;
+}
+
+input:focus, textarea:focus, select:focus {
+    border-color: #3498db;
+    outline: none;
+}
+
+/* Code Blocks */
+pre, code {
+    font-family: 'Roboto Mono', monospace;
+    background-color: #ecf0f1;
+    padding: 0.5em;
+    border-radius: 0.3em;
+}
+
+pre {
+    overflow-x: auto;
+}
+
+code {
+    font-size: 0.85em;
+}
+
+/* Main Container */
+.main-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1em;
+}
+
+/* Layout - Rows and Columns */
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    margin: -0.5em;
+}
+
+.column {
+    flex: 50%;
+    padding: 0.5em;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .column {
+        flex: 100%;
+    }
+
+    h1 {
+        font-size: 2rem;
+    }
+
+    h2 {
+        font-size: 1.75rem;
+    }
+
+    h3 {
+        font-size: 1.5rem;
+    }
+}
+
+/* Sidebar */
+#sidebar {
+    background-color: #2c3e50; /* Dark blue background */
+    color: #ecf0f1; /* Light text color */
+    padding: 1em;
+    min-height: 100vh;
+}
+
+/* Sidebar Headings */
+#sidebar h1, #sidebar h2, #sidebar h3, #sidebar h4, #sidebar h5, #sidebar h6 {
+    background-color: transparent;
+    color: #ecf0f1;
+}
+
+/* Navigation Links in Sidebar */
+.nav-link {
+    color: #ecf0f1;
+    padding: 0.5em;
+    display: block;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+    border-radius: 0.3em;
+}
+
+.nav-link:hover {
+    background-color: #4a6fa5; /* Lighter blue on hover */
+}
+
+.nav-link.active {
+    background-color: transparent; /* No background color */
+    color: #ecf0f1;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #bdc3c7;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: #95a5a6;
+}
+
+/* Ensure CSS does not affect Plotly graph text */
+.plotly-graph-div text {
+    fill: currentColor !important;
+}
+
+/* Optional: Reset any text color that might interfere with graphs */
+.plotly-graph-div {
+    color: inherit;
+}

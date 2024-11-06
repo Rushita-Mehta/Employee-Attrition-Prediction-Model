@@ -1,0 +1,271 @@
+/* Import Google Fonts for modern typography */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap');
+
+/* Reset some default styles for consistency */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Apply the new font family globally */
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f5f7fa;
+    color: #333;
+}
+
+/* Headings styling with light background and dark blue color in main content */
+.main-container h1, .main-container h2, .main-container h3, .main-container h4, .main-container h5, .main-container h6 {
+    font-weight: 700;
+    color: #2c3e50; /* Dark blue color */
+    margin-bottom: 0.5em;
+    padding: 0.5em;
+    background-color: #e8eef5; /* Light background behind headings */
+    border-radius: 0.3em;
+}
+
+/* Specific font sizes for headings */
+.main-container h1 {
+    font-size: 2.5rem;
+}
+
+.main-container h2 {
+    font-size: 2rem;
+}
+
+.main-container h3 {
+    font-size: 1.75rem;
+}
+
+.main-container h4 {
+    font-size: 1.5rem;
+}
+
+.main-container h5 {
+    font-size: 1.25rem;
+}
+
+.main-container h6 {
+    font-size: 1rem;
+}
+
+/* Paragraph styling */
+p {
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 1em;
+}
+
+/* Link styling */
+a {
+    color: #3498db;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Button styling */
+button, .btn, .stButton>button {
+    background-color: #3498db;
+    color: #fff;
+    padding: 0.75em 1.5em;
+    border: none;
+    border-radius: 0.3em;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover, .btn:hover, .stButton>button:hover {
+    background-color: #2980b9;
+}
+
+/* File uploader button styling */
+.stFileUploader > label {
+    background-color: #3498db;
+    color: #fff;
+    padding: 0.75em 1.5em;
+    border-radius: 0.3em;
+    font-size: 1rem;
+    cursor: pointer;
+    display: inline-block;
+    transition: background-color 0.3s ease;
+}
+
+.stFileUploader > label:hover {
+    background-color: #d3d3d3; /* Light grey on hover */
+    color: #333; /* Text color changes to dark */
+}
+
+/* Input styling */
+input, textarea, select {
+    font-family: inherit;
+    font-size: 1rem;
+    padding: 0.75em;
+    border: 1px solid #ccc;
+    border-radius: 0.3em;
+    width: 100%;
+    margin-bottom: 1em;
+}
+
+input:focus, textarea:focus, select:focus {
+    border-color: #3498db;
+    outline: none;
+}
+
+/* Code block styling */
+pre, code {
+    font-family: 'Roboto Mono', monospace;
+    background-color: #ecf0f1;
+    padding: 0.5em;
+    border-radius: 0.3em;
+}
+
+pre {
+    overflow-x: auto;
+}
+
+pre code {
+    font-size: inherit;
+}
+
+code {
+    font-size: 0.85em;
+}
+
+/* Container for graphs */
+.graph-container {
+    background-color: #fff;
+    padding: 1em;
+    margin-bottom: 2em;
+    border-radius: 0.3em;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Graph titles */
+.graph-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5em;
+    text-align: center;
+    color: #2c3e50;
+}
+
+/* Improve layout spacing */
+.main-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1em;
+}
+
+/* Row styling for layout */
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    margin: -0.5em;
+}
+
+/* Column styling for layout */
+.column {
+    flex: 50%;
+    padding: 0.5em;
+}
+
+/* Responsive layout adjustments */
+@media (max-width: 768px) {
+    .column {
+        flex: 100%;
+    }
+
+    .main-container h1 {
+        font-size: 2rem;
+    }
+
+    .main-container h2 {
+        font-size: 1.75rem;
+    }
+
+    .main-container h3 {
+        font-size: 1.5rem;
+    }
+}
+
+/* Sidebar styling */
+[data-testid="stSidebar"] {
+    background-color: #2c3e50; /* Dark blue background */
+    color: #ecf0f1; /* Light text color */
+}
+
+/* Remove background color from headings in the sidebar */
+[data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3, [data-testid="stSidebar"] h4, [data-testid="stSidebar"] h5, [data-testid="stSidebar"] h6 {
+    background-color: transparent;
+    color: #ecf0f1; /* Ensure headings in the sidebar are light color */
+}
+
+/* Style the radio buttons in the sidebar */
+[data-testid="stSidebar"] .stRadio > label {
+    color: #ecf0f1;
+    font-weight: bold;
+}
+
+[data-testid="stSidebar"] .stRadio div {
+    color: #ecf0f1;
+}
+
+/* Customize the radio button appearance */
+[data-testid="stSidebar"] .stRadio div[role='radiogroup'] > label {
+    background-color: transparent; /* No background color */
+    padding: 0.5em;
+    margin-bottom: 0.5em;
+    border-radius: 0.3em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+[data-testid="stSidebar"] .stRadio div[role='radiogroup'] > label:hover {
+    background-color: #4a6fa5; /* Lighter blue on hover */
+}
+
+/* Remove background color from selected option */
+[data-testid="stSidebar"] .stRadio div[role='radiogroup'] > label input:checked + div {
+    background-color: transparent; /* No background color */
+    color: #ecf0f1; /* Ensure text color remains consistent */
+}
+
+/* Improve form elements */
+.stTextInput>div>div>input,
+.stNumberInput>div>div>input,
+.stTextArea>div>textarea {
+    font-family: inherit;
+    font-size: 1rem;
+    padding: 0.75em;
+    border: 1px solid #ccc;
+    border-radius: 0.3em;
+    width: 100%;
+    margin-bottom: 1em;
+}
+
+.stTextInput>div>div>input:focus,
+.stNumberInput>div>div>input:focus,
+.stTextArea>div>textarea:focus {
+    border-color: #3498db;
+    outline: none;
+}
+
+/* Custom scrollbar for better aesthetics */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #bdc3c7;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: #95a5a6;
+}

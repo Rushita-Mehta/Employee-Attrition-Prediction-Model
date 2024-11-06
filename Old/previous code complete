@@ -1,0 +1,308 @@
+import streamlit as st
+import pandas as pd
+import numpy as np
+import io
+import pickle
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.compose import ColumnTransformer
+
+# Set the max elements allowed for Pandas Styler
+pd.set_option("styler.render.max_elements", 500000)
+
+# Function to highlight low and high scores
+def highlight_scores(val, max_score):
+    try:
+        val = float(val)
+        color = ''
+        if max_score == 10:
+            if val < 2:
+                color = 'red'
+            elif val > 8:
+                color = 'green'
+        elif max_score == 5:
+            if val < 2:
+                color = 'red'
+            elif val > 4:
+                color = 'green'
+        return f'background-color: {color}'
+    except:
+        return ''
+
+# Function to color-code risk category
+def color_risk(val):
+    color = ''
+    if val == 'Low Risk':
+        color = 'green'
+    elif val == 'Medium Risk':
+        color = 'orange'
+    else:
+        color = 'red'
+    return f'background-color: {color}'
+
+# Step 1: Title, Summary, and Explanation
+st.title("Employee Attrition Prediction and Insights Dashboard")
+
+st.write("""
+    This tool helps businesses predict employee attrition and provides actionable insights. 
+    By analyzing key employee attributes, the model predicts which employees are likely to leave, 
+    allowing HR teams and managers to take proactive steps. This helps reduce turnover, retain 
+    valuable talent, and make informed decisions based on data-driven insights.
+""")
+
+# Step 2: File uploader or text area for copy-pasting data
+st.subheader("Upload Employee Data or Paste CSV Data")
+st.write("""
+    **Required Columns**: The dataset should include the following columns for accurate predictions:
+    - EmployeeID
+    - Age
+    - Gender
+    - Department
+    - Tenure
+    - JobRole
+    - Salary
+    - JobSatisfaction
+    - EngagementScore
+    - PerformanceRating
+    - WorkLifeBalance
+""")
+
+uploaded_file = st.file_uploader("Upload CSV File", type="csv", help="Upload your employee data file in CSV format.")
+csv_data = st.text_area("Or paste your CSV data here (CSV format)", height=200, help="Paste CSV data if you don't want to upload a file.")
+
+# Step 3: Load the data
+data = None
+if uploaded_file:
+    try:
+        data = pd.read_csv(uploaded_file)
+        st.success("File uploaded successfully!")
+        st.write("Uploaded Data Preview:", data.head())
+    except Exception as e:
+        st.error(f"Error reading the uploaded file: {e}")
+elif csv_data:
+    try:
+        data = pd.read_csv(io.StringIO(csv_data))
+        st.success("Data pasted successfully!")
+        st.write("Pasted Data Preview:", data.head())
+    except Exception as e:
+        st.error(f"Error reading pasted CSV data: {e}")
+
+if data is not None:
+    # Ensure columns are converted to numeric where necessary
+    numeric_columns = ['Age', 'Tenure', 'Salary', 'JobSatisfaction', 'EngagementScore',
+                       'PerformanceRating', 'DistanceFromHome', 'TrainingHours', 'WorkLifeBalance']
+    for col in numeric_columns:
+        data[col] = pd.to_numeric(data[col], errors='coerce')
+
+    st.subheader("Model Selection and Prediction")
+
+    # Step 4: Model selection with a business-friendly explanation
+    st.write("""
+        **Model Selection**: Choose between two models based on your business goals:
+        - **AdaBoost**: A model that provides good predictions with moderate data complexity. Best for businesses looking to quickly identify at-risk employees and implement retention strategies.
+        - **Random Forest**: A model that handles more complex data and can provide deeper insights. Ideal for businesses that want to understand more intricate patterns and trends in attrition.
+    """)
+
+    model_choice = st.selectbox("Choose a model for predicting employee attrition:", ["AdaBoost", "Random Forest"])
+
+    st.write("""
+        **Prediction Threshold**: The threshold determines how confident the model should be when predicting whether an employee will leave.
+        - A **lower threshold** will capture more employees at risk, allowing you to target early intervention strategies, but it may include some false positives.
+        - A **higher threshold** will focus on employees who are highly likely to leave, giving you more precision but potentially overlooking early risk signs.
+    """)
+
+    threshold = st.slider("Select Prediction Threshold", 0.0, 1.0, 0.4, step=0.01)
+
+    if 'EmployeeID' in data.columns:
+        X = data.drop(columns=["EmployeeID"])
+    else:
+        X = data
+
+    categorical_features = ["Gender", "Department", "JobRole", "Overtime", "EducationLevel"]
+    numerical_features = ["Age", "Tenure", "Salary", "JobSatisfaction", "EngagementScore",
+                          "PerformanceRating", "DistanceFromHome", "TrainingHours", "WorkLifeBalance"]
+
+    preprocessor = ColumnTransformer(
+        transformers=[
+            ("num", StandardScaler(), numerical_features),
+            ("cat", OneHotEncoder(), categorical_features)
+        ])
+
+    X = preprocessor.fit_transform(X)
+
+    with open('ada_model.pkl', 'rb') as f:
+        ada_model = pickle.load(f)
+    with open('rf_model.pkl', 'rb') as f:
+        rf_model = pickle.load(f)
+
+    model = ada_model if model_choice == "AdaBoost" else rf_model
+
+    # Make predictions
+    probabilities = model.predict_proba(X)[:, 1]
+    predictions = (probabilities >= threshold).astype(int)
+    risk_percentage = probabilities * 100
+    risk_category = np.where(probabilities < 30, 'Low Risk',
+                             np.where(probabilities < 70, 'Medium Risk', 'High Risk'))
+
+    # Add predictions to the dataframe
+    data['Attrition Prediction'] = predictions
+    data['Risk Percentage'] = risk_percentage.round(1)
+    data['Risk Category'] = risk_category
+
+    # Step 5: Show the prediction output table with color coding and highlight low/high scores (excluding Engagement Score)
+    st.subheader("Attrition Prediction Results")
+    styled_df = data.style.applymap(lambda val: highlight_scores(val, 10),
+                                    subset=['JobSatisfaction']) \
+                          .applymap(lambda val: highlight_scores(val, 5),
+                                    subset=['PerformanceRating', 'WorkLifeBalance']) \
+                          .applymap(color_risk, subset=['Risk Category'])
+    st.dataframe(styled_df)
+
+    # Step 6: Current vs Predicted Attrition (both lines as linear)
+    st.subheader("Current Attrition vs Predicted Attrition")
+    current_attrition_rate = (data['Attrition Prediction'].mean()) * 100
+    predicted_attrition_rate = data['Risk Percentage'].mean()
+
+    fig, ax = plt.subplots(figsize=(6, 4))
+    ax.plot(['Current', 'Predicted'], [current_attrition_rate, predicted_attrition_rate],
+            marker='o', color='blue')
+    ax.set_title('Current vs Predicted Attrition', fontsize=11)
+    ax.set_ylabel('Percentage (%)', fontsize=10)
+    for i, value in enumerate([current_attrition_rate, predicted_attrition_rate]):
+        ax.text(i, value + 0.5, f'{value:.1f}%', ha='center', fontsize=9, color='grey')
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['left'].set_color('darkgrey')
+    ax.spines['bottom'].set_color('darkgrey')
+    st.pyplot(fig)
+
+    # Step 7: Average Risk by Job Role
+    st.subheader("Average Risk Percentage by Job Role")
+    avg_risk_by_role = data.groupby('JobRole')['Risk Percentage'].mean().reset_index()
+    fig, ax = plt.subplots(figsize=(6, 4))
+    sns.barplot(x='Risk Percentage', y='JobRole', data=avg_risk_by_role,
+                palette="Blues_d", ax=ax)
+    ax.set_title('Average Risk Percentage by Job Role', fontsize=11)
+    for i in range(len(avg_risk_by_role)):
+        ax.text(avg_risk_by_role['Risk Percentage'][i] + 0.5, i,
+                f'{avg_risk_by_role["Risk Percentage"][i]:.1f}%', va='center',
+                fontsize=9, color='grey')
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['left'].set_color('darkgrey')
+    ax.spines['bottom'].set_color('darkgrey')
+    st.pyplot(fig)
+
+    # Step 8: Average Risk by Department
+    st.subheader("Average Risk Percentage by Department")
+    avg_risk_by_dept = data.groupby('Department')['Risk Percentage'].mean().reset_index()
+    fig, ax = plt.subplots(figsize=(6, 4))
+    sns.barplot(x='Risk Percentage', y='Department', data=avg_risk_by_dept,
+                palette="Blues_d", ax=ax)
+    ax.set_title('Average Risk Percentage by Department', fontsize=11)
+    for i in range(len(avg_risk_by_dept)):
+        ax.text(avg_risk_by_dept['Risk Percentage'][i] + 0.5, i,
+                f'{avg_risk_by_dept["Risk Percentage"][i]:.1f}%', va='center',
+                fontsize=9, color='grey')
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['left'].set_color('darkgrey')
+    ax.spines['bottom'].set_color('darkgrey')
+    st.pyplot(fig)
+
+    # Step 9: Average Risk by Seniority
+    st.subheader("Average Risk Percentage by Seniority")
+    avg_risk_by_tenure = data.groupby('Tenure')['Risk Percentage'].mean().reset_index()
+    fig, ax = plt.subplots(figsize=(6, 4))
+    sns.lineplot(x='Tenure', y='Risk Percentage', data=avg_risk_by_tenure,
+                 marker="o", ax=ax, color="blue")
+    for i in range(len(avg_risk_by_tenure)):
+        ax.text(avg_risk_by_tenure['Tenure'][i], avg_risk_by_tenure['Risk Percentage'][i] + 0.5,
+                f'{avg_risk_by_tenure["Risk Percentage"][i]:.1f}%', ha='center',
+                fontsize=9, color='grey')
+    ax.set_title('Average Attrition Risk by Seniority', fontsize=11)
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['left'].set_color('darkgrey')
+    ax.spines['bottom'].set_color('darkgrey')
+    st.pyplot(fig)
+
+    # Step 10: Individual Employee Dashboard Visualization
+    st.subheader("Individual Employee Dashboard")
+    selected_employee = st.selectbox("Select Employee by ID", data['EmployeeID'].unique())
+    employee_data = data[data['EmployeeID'] == selected_employee].iloc[0]
+
+    # Visualization for the employee's attributes
+    fig, ax = plt.subplots(figsize=(6, 4))
+    metrics = ['JobSatisfaction', 'EngagementScore', 'PerformanceRating', 'WorkLifeBalance', 'Risk Percentage']
+    values = [employee_data['JobSatisfaction'], employee_data['EngagementScore'],
+              employee_data['PerformanceRating'], employee_data['WorkLifeBalance'],
+              employee_data['Risk Percentage']]
+
+    ax.barh(metrics, values, color=['blue', 'green', 'orange', 'purple', 'red'])
+    for i, value in enumerate(values):
+        ax.text(value + 0.5, i, f'{value:.1f}', va='center', fontsize=9, color='darkgrey')
+    ax.set_title(f"Dashboard for Employee {selected_employee}", fontsize=11)
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['left'].set_color('darkgrey')
+    ax.spines['bottom'].set_color('darkgrey')
+    st.pyplot(fig)
+
+    # Step 11: Insights and Recommendations
+    st.subheader("Insights and Recommendations")
+
+    overall_avg_risk = data['Risk Percentage'].mean()
+    avg_attrition_rate = data['Attrition Prediction'].mean() * 100
+    min_risk_dept = data.groupby('Department')['Risk Percentage'].mean().idxmin()
+    max_risk_dept = data.groupby('Department')['Risk Percentage'].mean().idxmax()
+
+    st.write(f"Based on the data, the overall average attrition risk is **{overall_avg_risk:.1f}%**.")
+    st.write(f"The current attrition rate is **{avg_attrition_rate:.1f}%**.")
+    st.write(f"The department with the lowest attrition risk is **{min_risk_dept}**, "
+             f"while the highest risk is in **{max_risk_dept}**.")
+
+    # Dynamic recommendations based on attrition risk
+    if overall_avg_risk < 3:
+        st.write("**Very Low Risk (0-3%)**: The attrition risk is extremely low. Maintain current strategies.")
+    elif 3 <= overall_avg_risk < 9:
+        st.write("**Low Risk (3-9%)**: Risk is low but monitor for early signs of disengagement.")
+    elif 9 <= overall_avg_risk < 12:
+        st.write("**Moderate Risk (9-12%)**: Noticeable increase in risk. Consider employee surveys to understand root causes.")
+    elif 12 <= overall_avg_risk < 20:
+        st.write("**Moderate to High Risk (12-20%)**: Recognition and career growth opportunities may help reduce attrition.")
+    elif 20 <= overall_avg_risk < 30:
+        st.write("**High Risk (20-30%)**: Immediate attention required, consider revising compensation, benefits, and workload.")
+    else:
+        st.write("**Critical Risk (>30%)**: Serious risk. Company-wide initiatives focused on employee satisfaction and engagement are necessary.")
+
+    # Additional insights
+    st.write("""
+    **Consultative Insights**: The following data-driven insights can help inform strategic actions:
+    """)
+
+    # Insight 1: Correlation between Engagement Score and Risk Percentage
+    correlation = data['EngagementScore'].corr(data['Risk Percentage'])
+    st.write(f"1. **Correlation between Engagement Score and Attrition Risk**: Employees with lower engagement scores are likely to have higher attrition risk. The correlation is **{correlation:.2f}**, indicating a moderate connection. Investing in employee engagement programs may lower attrition risk.")
+
+    # Insight 2: Overtime and Attrition Risk
+    if 'Overtime' in data.columns:
+        overtime_risk = data.groupby('Overtime')['Risk Percentage'].mean().reset_index()
+        st.write("2. **Impact of Overtime on Attrition Risk**: Employees working overtime consistently show an increase in attrition risk. The table below highlights average attrition risks for employees working overtime:")
+        for index, row in overtime_risk.iterrows():
+            st.write(f"- **{row['Overtime']}**: {row['Risk Percentage']:.1f}% risk")
+
+    # Insight 3: Impact of Training Hours
+    avg_training_hours = data['TrainingHours'].mean()
+    st.write(f"3. **Impact of Training Hours on Attrition Risk**: The average training hours is **{avg_training_hours:.1f}**. Research shows that employees receiving regular training and development opportunities are more likely to stay. Increase the number of training hours to boost retention.")
+
+    # Step 12: Download the Results
+    st.subheader("Download Results")
+    csv = data.to_csv(index=False).encode('utf-8')
+    st.download_button(label="Download Results as CSV",
+                       data=csv,
+                       file_name='attrition_predictions.csv',
+                       mime='text/csv')
+
+# End of Code

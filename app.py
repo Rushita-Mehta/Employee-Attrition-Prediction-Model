@@ -10,6 +10,7 @@ import pickle
 import plotly.express as px
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.compose import ColumnTransformer
+from sklearn.ensemble import AdaBoostClassifier, RandomForestClassifier
 
 # Function Definitions
 # --------------------
@@ -270,6 +271,13 @@ elif current_page == "Analysis":
             ada_model = pickle.load(f)
         with open('rf_model.pkl', 'rb') as f:
             rf_model = pickle.load(f)
+            
+        # Save the models with the current version (1.5.2)
+        with open('ada_model.pkl', 'wb') as f:
+            pickle.dump(ada_model, f)
+
+        with open('rf_model.pkl', 'wb') as f:
+            pickle.dump(rf_model, f)
 
         # Select the model based on user choice
         model = ada_model if model_choice == "AdaBoost" else rf_model
